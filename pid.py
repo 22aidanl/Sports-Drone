@@ -1,5 +1,5 @@
 class PIDController:
-    def __init__(kp: float, ki: float, kd: float, dt: float):
+    def __init__(self, kp: float, ki: float, kd: float, dt: float):
         self.kp = kp
         self.ki = ki
         self.kd = kd
@@ -13,7 +13,7 @@ class PIDController:
 
         p = self.kp * err
         i = self.ki * self.integral
-        d = self.kd * (err - self.prev_err) / self.dt if prev_err else 0
+        d = self.kd * (err - self.prev_err) / self.dt if self.prev_err else 0
 
-        prev_err = err
+        self.prev_err = err
         return p + i + d

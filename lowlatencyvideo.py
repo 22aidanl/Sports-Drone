@@ -12,10 +12,9 @@ videoSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 commandSocket.bind(("", 8889))
 videoSocket.bind(("", 11111))
 commandSocket.sendto(b"command", address)
-commandSocket.sendto(b'streamon', address)
+commandSocket.sendto(b"streamon", address)
 
 decoder = h264decoder.H264Decoder()
-
 currentFrame = None
 
 
@@ -51,5 +50,5 @@ while True:
     if currentFrame is not None:
         cv2.imshow("Tello Camera", currentFrame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord("q"):
             break
