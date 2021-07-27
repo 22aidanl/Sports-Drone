@@ -1,13 +1,14 @@
 import cv2
 import numpy as np
 from djitellopy import tello
+import os
 
 #my_drone = tello.Tello()
 #my_drone.connect()
 #my_drone.streamon()
 
 #frame = my_drone.get_frame_read().frame
-frame = cv2.imread('1.jpg')
+frame = cv2.imread(os.path.dirname(os.path.realpath(__file__)) + '/1.jpg')
 #img = frame.copy()
 
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
