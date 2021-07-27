@@ -13,7 +13,7 @@ while True:
         new = cv2.medianBlur(gray, 5)
         #newimg = cv2.cvtColor(new, cv2.COLOR_GRAY2BGR)
 
-        circles = cv2.HoughCircles(new, cv2.HOUGH_GRADIENT, 1, 400, param1=100, param2=30, minRadius=0, maxRadius=250)
+        circles = cv2.HoughCircles(new, cv2.HOUGH_GRADIENT, 1, 400, 1, param1=100, param2=30, minRadius=0, maxRadius=250)
         circles = np.uint16(np.around(circles))
 
         for i in circles[0, :]:
