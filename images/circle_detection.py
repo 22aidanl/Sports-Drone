@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 
-frame = cv2.imread(os.path.dirname(os.path.realpath(__file__)) + '/1.jpg')
+frame = cv2.imread(os.path.dirname(os.path.realpath(__file__)) + '/2.jpg')
 #img = frame.copy()
 
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -12,7 +12,7 @@ newimg = cv2.cvtColor(new, cv2.COLOR_GRAY2BGR)
 
 ##CHANGE THE BELOW VALUES AS NEEDED##
 #for second image# circles = cv2.HoughCircles(new, cv2.HOUGH_GRADIENT, 1, 800, param1=10, param2=30, minRadius=0, maxRadius=250)
-circles = cv2.HoughCircles(new, cv2.HOUGH_GRADIENT, 1, 360, param1=100, param2=30, minRadius=0, maxRadius=250)
+circles = cv2.HoughCircles(new, cv2.HOUGH_GRADIENT, 1, 360, circles=1, param1=100, param2=30, minRadius=0, maxRadius=250)
 circles = np.uint16(np.around(circles))
 
 for i in circles[0, :]:
