@@ -18,13 +18,14 @@ newimg = cv2.cvtColor(new, cv2.COLOR_GRAY2BGR)
 #cv2.imshow('Frame', img)
 #cv2.waitKey(1)
 ##CHANGE THE BELOW VALUES AS NEEDED##
+#for second image# circles = cv2.HoughCircles(new, cv2.HOUGH_GRADIENT, 1, 800, param1=10, param2=30, minRadius=0, maxRadius=250)
 circles = cv2.HoughCircles(new, cv2.HOUGH_GRADIENT, 1, 360, param1=100, param2=30, minRadius=0, maxRadius=250)
 circles = np.uint16(np.around(circles))
         #print(circles)
         #print(circles.shape)
 
 for i in circles[0, :]:
-    cv2.circle(frame, (i[0], i[1]), i[2], (0, 255, 0), 10) ##CHANGE THESE VALUES AS NEEDED##
+    cv2.circle(frame, (i[0], i[1]), i[2], (0, 255, 0), 3) ##CHANGE THESE VALUES AS NEEDED##
     cv2.circle(frame, (i[0], i[1]), 2, (0, 0, 255), 10) ##CHANGE THESE VALUES AS NEEDED##
 
 cv2.imshow('Frame', frame)
