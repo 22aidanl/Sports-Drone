@@ -1,0 +1,30 @@
+import cv2
+import numpy as np
+import os
+
+cap = cv2.VideoCapture(os.path.dirname(os.path.realpath(__file__)) + "/1.avi")
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if ret:
+        # Convert to HSV, use color ranges for a basketball, and convert back to BGR
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        bballLower = np.array([0,200,150])
+        bballUpper = np.array([15,255,255])
+        mask = cv2.inRange(hsv, bballLower, bballUpper)
+        hsv = cv2.bitwise_and(hsv, hsv, mask=mask)
+
+        # Use grayscale to find all contours and draw them
+        gray = cv2.split(hsv)[2]
+        gray = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, np.ones((15, 15)))
+        contours, _ = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cv2.drawContours(frame, contours, -1, (0, 255, 0), thickness=5)
+
+
+        cv2.imshow('Recorded Video', frame)
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+    else:
+        break
+
+cap.release()
