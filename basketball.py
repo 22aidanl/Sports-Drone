@@ -13,7 +13,7 @@ class Basketball:
 
         for contour in self.contours:
             area = cv2.contourArea(contour)
-            if area < 200:
+            if area < 130:
                 continue
             totalArea += area
 
