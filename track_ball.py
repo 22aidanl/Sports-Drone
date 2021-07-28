@@ -6,7 +6,7 @@ import numpy as np
 
 tello = Tello()
 tello.connect()
-# tello.takeoff()
+tello.takeoff()
 # tello.move("up", 50)
 tello.streamon()
 leftRightPID = PIDController(0.1, 0, 0.0001, 0.001)
