@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 import cv2
+import os
+import numpy as np
 
 class Ball:
     def __init__(self, centroid, area, detection_method):
@@ -12,7 +14,7 @@ class Ball:
 
 class BallDetector(ABC):
     @abstractmethod
-    def detect(frame) -> Ball
+    def detect(frame) -> Ball:
 
 class ColorAndContourDetector(BallDetector):
     def detect(frame) -> Ball:
@@ -48,3 +50,21 @@ class ColorAndContourDetector(BallDetector):
         area = totalArea
 
         return Ball(centroid, area, "color and contour")
+
+
+class ObjectDetector(BallDetector):
+    def detect(frame) -> Ball:
+        classNames = []
+        classPath = os.path.dirname(os.path.realpath(__file__)) + "/coco.names"
+        with open(classPath, "r") as classFile:
+            classNames = classFile.read().rstrip("\n").split("\n")
+            configPath = (os.path.dirname(os.path.realpath(__file__)) + "/ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt")
+            weightsPath = (os.path.dirname(os.path.realpath(__file__)) + "/frozen_inference_graph.pb")
+
+            net = cv2.dnn_DetectionModel(weightsPath, configPath)
+            net.setInputSize(320, 320)
+            net.setInputScale(1.0 / 127.5)
+            net.setInputMean((127.5, 127.5, 127.5))
+            net.setInputSwapRB(True)
+
+        return Ball()
