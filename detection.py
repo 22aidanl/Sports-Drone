@@ -15,6 +15,7 @@ class Ball:
 class BallDetector(ABC):
     @abstractmethod
     def detect(frame) -> Ball:
+        pass
 
 class ColorAndContourDetector(BallDetector):
     def detect(frame) -> Ball:
