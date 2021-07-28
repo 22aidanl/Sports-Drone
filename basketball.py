@@ -13,6 +13,8 @@ class Basketball:
 
         for contour in self.contours:
             area = cv2.contourArea(contour)
+            if area < 200:
+                continue
             totalArea += area
 
             M = cv2.moments(contour)
