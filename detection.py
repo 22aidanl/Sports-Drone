@@ -66,3 +66,5 @@ class ObjectDetector(BallDetector):
             net.setInputScale(1.0 / 127.5)
             net.setInputMean((127.5, 127.5, 127.5))
             net.setInputSwapRB(True)
+
+        return Ball()
