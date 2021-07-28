@@ -26,7 +26,7 @@ while True:
 
         while True:
             frame = my_drone.get_frame_read().frame
-            classIds, confs, bbox = net.detect(frame, confThreshold=0.35)
+            classIds, confs, bbox = net.detect(frame, confThreshold=0.18)
 
             for classId, confidence, box in zip(classIds.flatten(), confs.flatten(), bbox):
 
