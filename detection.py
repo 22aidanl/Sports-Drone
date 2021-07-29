@@ -36,7 +36,8 @@ class ColorAndContourDetector(BallDetector):
 
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area < 750:
+            if area < 200:
+            # if area < 750:
                 continue
             largeContours.append(contour)
             totalArea += area
@@ -51,8 +52,9 @@ class ColorAndContourDetector(BallDetector):
         centroid = (int(sum(xs) / len(xs)), int(sum(ys) / len(ys))) if len(xs) != 0 else None
         radius = (totalArea / np.pi) ** 0.5
 
-        cv2.drawContours(frame, contours, -1, (0, 255, 0), thickness=5)
-        cv2.circle(frame, centroid, 5, (255, 0, 0), thickness=10)
+        cv2.drawContours(frame, largeContours, -1, (0, 255, 0), thickness=5)
+        if centroid is not None:
+            cv2.circle(frame, centroid, 5, (255, 0, 0), thickness=10)
         return Ball(centroid, radius, "color and contour")
 
 
@@ -72,3 +74,30 @@ class ObjectDetector(BallDetector):
             net.setInputSwapRB(True)
 
         return Ball()
+
+
+class AngleDetection():
+    def detect(frame):
+        gray = cv2.bitwise_not(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
+        horizontal = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, \
+                                cv2.THRESH_BINARY, 15, -2)
+        cols = horizontal.shape[1]
+        horizontal_size = cols // 30
+        horizontalStructure = cv2.getStructuringElement(cv2.MORPH_RECT, (horizontal_size, 1))
+        horizontal = cv2.morphologyEx(horizontal, cv2.MORPH_OPEN, horizontalStructure)
+        blurred = cv2.GaussianBlur(horizontal, (5, 5), 0)
+        edges = cv2.Canny(blurred, 50, 150)
+        lines = cv2.HoughLinesP(edges, 1, np.pi / 90, 15, None,
+                            50, 10)
+
+        degList = []
+        if lines is not None:
+            for line in lines:
+                for x1,y1,x2,y2 in line:
+                    deg = np.degrees(np.arctan((y2-y1)/(x2-x1)))
+                    if abs(deg) < 10:
+                        cv2.line(frame,(x1,y1),(x2,y2),(255,0,0),5)
+                        degList.append(deg)
+        if len(degList) > 0:
+            return sum(degList) / len(degList)
+        return None

@@ -20,7 +20,8 @@ while True:
         if ball.centroid:
             leftRight = int(leftRightPID.next(ball.centroid[0] - 480))
             upDown = int(upDownPID.next(360 - ball.centroid[1]))
-            forwardBackward = int(forwardBackwardPID.next(35 - ball.radius))
+            # forwardBackward = int(forwardBackwardPID.next(35 - ball.radius))
+            forwardBackward = int(forwardBackwardPID.next(10 - ball.radius))
             print(35 - ball.radius)
             tello.send_rc_control(leftRight, forwardBackward, upDown, 0)
             
