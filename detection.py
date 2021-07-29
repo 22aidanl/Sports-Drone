@@ -4,13 +4,13 @@ import os
 import numpy as np
 
 class Ball:
-    def __init__(self, centroid, area, detection_method):
+    def __init__(self, centroid, radius, detection_method):
         self.centroid = centroid
-        self.area = area
+        self.radius = radius
         self.detection_method = detection_method
     
     def __str__(self):
-        return f"Basketball {{ centroid: {self.centroid}, area: {self.area} }} (detected with {self.detection_method}"
+        return f"Basketball {{ centroid: {self.centroid}, radius: {self.radius} }} (detected with {self.detection_method}"
 
 class BallDetector(ABC):
     @abstractmethod
@@ -28,16 +28,17 @@ class ColorAndContourDetector(BallDetector):
         gray = cv2.split(hsv)[2]
         gray = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, np.ones((15, 15)))
         contours, _ = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.drawContours(frame, contours, -1, (0, 255, 0), thickness=5)
 
+        largeContours = []
         xs = []
         ys = []
-        totalArea = 0
+        totalArea = 0        
 
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area < 130:
+            if area < 750:
                 continue
+            largeContours.append(contour)
             totalArea += area
 
             M = cv2.moments(contour)
@@ -48,9 +49,11 @@ class ColorAndContourDetector(BallDetector):
                 ys.append(centerY)
 
         centroid = (int(sum(xs) / len(xs)), int(sum(ys) / len(ys))) if len(xs) != 0 else None
-        area = totalArea
+        radius = (totalArea / np.pi) ** 0.5
 
-        return Ball(centroid, area, "color and contour")
+        cv2.drawContours(frame, contours, -1, (0, 255, 0), thickness=5)
+        cv2.circle(frame, centroid, 5, (255, 0, 0), thickness=10)
+        return Ball(centroid, radius, "color and contour")
 
 
 class ObjectDetector(BallDetector):
