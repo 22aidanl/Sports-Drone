@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 
-frame = cv2.imread(os.path.dirname(os.path.realpath(__file__)) + '/2.jpg')
+frame = cv2.imread(os.path.dirname(os.path.realpath(__file__)) + '/1.jpg')
 #img = frame.copy()
 
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
