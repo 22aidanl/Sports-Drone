@@ -6,8 +6,8 @@ frame = cv2.imread(os.path.dirname(os.path.realpath(__file__)) + "/1.jpg")
 
 # Convert to HSV and use color ranges for a basketball
 hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-bballLower = np.array([5,150,100])
-bballUpper = np.array([15,255,255])
+bballLower = np.array([5,90,100])
+bballUpper = np.array([30,255,255])
 mask = cv2.inRange(hsv, bballLower, bballUpper)
 hsv = cv2.bitwise_and(hsv, hsv, mask=mask)
 
