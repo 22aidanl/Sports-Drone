@@ -16,4 +16,4 @@ class BallEstimator:
     def estimate(self, dt):
         # Only estimates x direction for now
         self.x = self.x + self.dx * dt
-        return Ball((self.x, self.y), self.radius)
+        return Ball((self.x, self.y), self.radius, "")

@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
+# from tracker import findBestCircularity
 import cv2
 import os
 import numpy as np
+import math
 
 class Ball:
     def __init__(self, centroid, radius, detection_method):
@@ -18,45 +20,47 @@ class BallDetector(ABC):
         pass
 
 class ColorAndContourDetector(BallDetector):
-    def detect(frame) -> Ball:
+
+    def __init__(self):
+        self.lastPos = None
+
+    def detect(self, frame) -> Ball:
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        bballLower = np.array([4,150,50])
-        bballUpper = np.array([14,255,255])
+        bballLower = np.array([10/360, 40/100, 20/100])
+        bballUpper = np.array([30/360, 100/100, 100/100])
+        
+        # Convert to OpenCV ranges
+        bballLower[0] *= 179
+        bballUpper[0] *= 179
+        bballLower[1:] *= 255
+        bballUpper[1:] *= 255
+
         mask = cv2.inRange(hsv, bballLower, bballUpper)
-        hsv = cv2.bitwise_and(hsv, hsv, mask=mask)
-
-        gray = cv2.split(hsv)[2]
-        gray = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, np.ones((15, 15)))
+        gray = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((15, 15)))
         contours, _ = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+       
 
-        largeContours = []
-        xs = []
-        ys = []
-        totalArea = 0        
+        contourFrame = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+        cv2.drawContours(contourFrame, contours, -1, (0, 255, 0), thickness=2)
+        cv2.imshow("Contours", contourFrame)
 
-        for contour in contours:
-            area = cv2.contourArea(contour)
-            if area < 200:
-            # if area < 750:
-                continue
-            largeContours.append(contour)
-            totalArea += area
+        contours = [contour for contour in contours if cv2.contourArea(contour) > 200]
 
-            M = cv2.moments(contour)
-            if M["m00"] != 0:
-                centerX = int(M["m10"]/ M["m00"])
-                centerY = int(M["m01"] / M["m00"])
-                xs.append(centerX)
-                ys.append(centerY)
-
-        centroid = (int(sum(xs) / len(xs)), int(sum(ys) / len(ys))) if len(xs) != 0 else None
-        radius = (totalArea / np.pi) ** 0.5
-
-        cv2.drawContours(frame, largeContours, -1, (0, 255, 0), thickness=5)
-        if centroid is not None:
-            cv2.circle(frame, centroid, 5, (255, 0, 0), thickness=10)
-        return Ball(centroid, radius, "color and contour")
-
+        if len(contours) > 0:
+            contourIndex = findBestCircularity(contours)
+            if contourIndex is not None:
+                ((x, y), radius) = cv2.minEnclosingCircle(contours[contourIndex])
+                x, y = int(x), int(y)
+                print(x, y, radius)
+                if radius > 25:
+                    
+                    if self.lastPos is None:
+                        self.lastPos = (x, y)
+                    elif math.dist(self.lastPos, (x, y)) < 50:
+                        self.lastPos = (x, y)
+                        cv2.circle(frame, (x, y), int(radius),
+                                    (0, 255, 255), 2)
+                        return Ball((x, y), radius, "color and contour")
 
 class ObjectDetector(BallDetector):
     def detect(frame) -> Ball:
@@ -76,7 +80,32 @@ class ObjectDetector(BallDetector):
         return Ball()
 
 
-class AngleDetection():
+def findBestCircularity(contours):
+    bestCircularity = 0
+    bestContour = None
+
+    #DEBUG
+    circularityList = []
+
+    for i, contour in enumerate(contours):
+        perimeter = cv2.arcLength(contour, True)
+        area = cv2.contourArea(contour)
+        if perimeter == 0:
+            continue
+        circularity = (4 * math.pi * area) / (perimeter ** 2)
+
+        #DEBUG
+        circularityList.append(circularity)
+        if circularity > bestCircularity:
+            bestCircularity = circularity
+            bestContour = i
+
+    #DEBUG
+    # if bestContour is None:
+    return bestContour
+
+
+class AngleDetector():
     def detect(frame):
         gray = cv2.bitwise_not(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
         horizontal = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, \
