@@ -10,7 +10,7 @@ my_drone.streamon()
 print(my_drone.get_battery())
 
 while True:
-    classNames= []
+    classNames = []
     classPath = os.path.dirname(os.path.realpath(__file__)) + "/coco.names"
     with open(classPath, "r") as classFile:
         classNames = classFile.read().rstrip("\n").split("\n")
