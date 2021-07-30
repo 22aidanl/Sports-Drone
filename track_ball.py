@@ -1,6 +1,7 @@
 from pid import PIDController
 from detection import ColorAndContourDetector
 from estimator import BallEstimator
+from shot_counter import ShotCounter
 from djitellopy import Tello
 import cv2
 
@@ -17,6 +18,7 @@ forwardBackwardPID = PIDController(1, 0, 0, PERIOD / 1000)
 
 detector = ColorAndContourDetector()
 ball_estimator = BallEstimator()
+shot_counter = ShotCounter()
 
 while True:
     frame = tello.get_frame_read().frame
@@ -26,6 +28,8 @@ while True:
     else:
         ball = ball_estimator.estimate(PERIOD / 1000)
 
+    shot_counter.update(drone.get_height(), ball)
+    
     leftRight = int(leftRightPID.next(ball.centroid[0] - 480))
     upDown = int(upDownPID.next(360 - ball.centroid[1]))
     forwardBackward = int(forwardBackwardPID.next(35 - ball.radius))
