@@ -6,7 +6,7 @@ class ShotCounter:
         self.in_air = False
     
     def update(self, drone_height, ball):
-        if drone_height > HEIGHT_THRESHOLD && ball.centroid[1] < 360:
+        if drone_height > HEIGHT_THRESHOLD and ball.centroid[1] < 360:
             if not self.in_air:
                 self.in_air = True
                 self.attempts += 1

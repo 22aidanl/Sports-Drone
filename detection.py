@@ -26,8 +26,8 @@ class ColorAndContourDetector(BallDetector):
 
     def detect(self, frame) -> Ball:
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        bballLower = np.array([10/360, 40/100, 20/100])
-        bballUpper = np.array([30/360, 100/100, 100/100])
+        bballLower = np.array([8/360, 45/100, 20/100])
+        bballUpper = np.array([28/360, 100/100, 100/100])
         
         # Convert to OpenCV ranges
         bballLower[0] *= 179
@@ -38,29 +38,27 @@ class ColorAndContourDetector(BallDetector):
         mask = cv2.inRange(hsv, bballLower, bballUpper)
         gray = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((15, 15)))
         contours, _ = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-       
+        centers = [cv2.minEnclosingCircle(contour)[0] for contour in contours]
+
+        if self.lastPos is not None:
+            contours = [contours[i] for i in range(len(contours)) if (cv2.contourArea(contours[i]) > 500 and math.dist(self.lastPos, centers[i]) < 600)]
+        else:
+            contours = [contour for contour in contours if cv2.contourArea(contour) > 500]
+
 
         contourFrame = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
         cv2.drawContours(contourFrame, contours, -1, (0, 255, 0), thickness=2)
         cv2.imshow("Contours", contourFrame)
-
-        contours = [contour for contour in contours if cv2.contourArea(contour) > 200]
 
         if len(contours) > 0:
             contourIndex = findBestCircularity(contours)
             if contourIndex is not None:
                 ((x, y), radius) = cv2.minEnclosingCircle(contours[contourIndex])
                 x, y = int(x), int(y)
-                print(x, y, radius)
-                if radius > 25:
-                    
-                    if self.lastPos is None:
-                        self.lastPos = (x, y)
-                    elif math.dist(self.lastPos, (x, y)) < 50:
-                        self.lastPos = (x, y)
-                        cv2.circle(frame, (x, y), int(radius),
+                self.lastPos = (x, y)
+                cv2.circle(frame, (x, y), int(radius),
                                     (0, 255, 255), 2)
-                        return Ball((x, y), radius, "color and contour")
+                return Ball((x, y), radius, "color and contour")
 
 class ObjectDetector(BallDetector):
     def detect(frame) -> Ball:
@@ -81,11 +79,8 @@ class ObjectDetector(BallDetector):
 
 
 def findBestCircularity(contours):
-    bestCircularity = 0
+    bestCircularity = 0.4
     bestContour = None
-
-    #DEBUG
-    circularityList = []
 
     for i, contour in enumerate(contours):
         perimeter = cv2.arcLength(contour, True)
@@ -94,14 +89,10 @@ def findBestCircularity(contours):
             continue
         circularity = (4 * math.pi * area) / (perimeter ** 2)
 
-        #DEBUG
-        circularityList.append(circularity)
         if circularity > bestCircularity:
             bestCircularity = circularity
             bestContour = i
 
-    #DEBUG
-    # if bestContour is None:
     return bestContour
 
 

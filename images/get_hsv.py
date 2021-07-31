@@ -2,8 +2,8 @@ import cv2
 import os
 
 # Coordinates to view the HSV values of
-x = 410
-y = 449
+x = 600
+y = 50
 
 frame = cv2.imread(os.path.dirname(os.path.realpath(__file__)) + "/3.jpg")
 hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)

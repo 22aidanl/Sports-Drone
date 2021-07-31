@@ -4,13 +4,16 @@ from estimator import BallEstimator
 from shot_counter import ShotCounter
 from djitellopy import Tello
 import cv2
+import os
 
 PERIOD = 1 # ms
 
+
 tello = Tello()
 tello.connect()
-# tello.takeoff()
+tello.takeoff()
 tello.streamon()
+
 
 leftRightPID = PIDController(0.1, 0, 0.0001, PERIOD / 1000)
 upDownPID = PIDController(0.2, 0, 0, PERIOD / 1000)
@@ -28,14 +31,14 @@ while True:
     else:
         ball = ball_estimator.estimate(PERIOD / 1000)
 
-    shot_counter.update(drone.get_height(), ball)
+    shot_counter.update(tello.get_height(), ball)
     
     leftRight = int(leftRightPID.next(ball.centroid[0] - 480))
     upDown = int(upDownPID.next(360 - ball.centroid[1]))
-    forwardBackward = int(forwardBackwardPID.next(35 - ball.radius))
+    forwardBackward = int(forwardBackwardPID.next(40 - ball.radius))
     tello.send_rc_control(leftRight, forwardBackward, upDown, 0)
-
     cv2.imshow("Tello Camera", frame)
+    
 
     if cv2.waitKey(PERIOD) & 0xFF == ord('q'):
         break
